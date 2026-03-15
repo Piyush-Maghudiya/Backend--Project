@@ -9,7 +9,7 @@ const router = Router()
         maxCount:1
     },
     {
-       name :"coverrImage",
+       name :"coverImage",
        maxCount:1
     }
  ]) ,registerUser)
