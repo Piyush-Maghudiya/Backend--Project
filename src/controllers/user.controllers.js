@@ -33,17 +33,8 @@ const registerUser = asyncHandler(async (req,res) =>{
         const {fullname,email,password ,username} = req.body || {}
         console.log("email : ",email)
         
-        if(email === ""){
-          throw  new ApiError(400,"email is required")
-        }
-        if(password === ""){
-            throw new ApiError(400,"password is required")
-        }
-        if(username === ""){
-            throw new ApiError(400,"username is required")
-        }
-        if(fullname === ""){
-           throw  new ApiError(400,"fullname is required")
+        if(!fullname || !email || !password || !username){
+          throw new ApiError(400, "All fields are required (fullname, email, password, username)")
         }
 
         const exituser =  await User.findOne({
@@ -97,6 +88,7 @@ const registerUser = asyncHandler(async (req,res) =>{
       // find user
       // password check 
       // access and refresh token generate
+      console.log(req.body);
       const  {username,email,password} = req.body
       if(!username && !email ){
         throw new ApiError(404,"username or email required")
@@ -153,9 +145,9 @@ const registerUser = asyncHandler(async (req,res) =>{
     }
     return res
     .status(200)
-    .clearCookie("accessToken", accessToken,options)
-        .clearCookie("refreshToken", refreshToken,options)
-        .json(new ApiResponse(200, {}, "user logged out"))
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .json(new ApiResponse(200, {}, "user logged out"))
   }) 
 
   const refreshAccessToken = asyncHandler(async (req,res)=>{

@@ -17,5 +17,5 @@ const router = Router()
  ]) ,registerUser)
  router.route("/login").post(loginUser)
  router.route("/logout").post(verifyjwt,logoutUser)
- router.route("/refresh -token").post(refreshAccessToken)
+ router.route("/refresh-token").post(refreshAccessToken)
 export  default router
