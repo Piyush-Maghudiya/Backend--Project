@@ -1,7 +1,7 @@
 import asyncHandler from "../utils/asyncHandler.js"
 import ApiError from "../utils/ApiError.js"
 import  User  from "../models/user.models.js"
-import uploadoncloudinary from "../utils/cloudinary.js"
+import {uploadoncloudinary,deleteFromCloudinary} from "../utils/cloudinary.js"
 import ApiResponse from "../utils/ApiResponse.js"
 import jwt from "jsonwebtoken";
 import { response } from "express"
@@ -68,8 +68,14 @@ const registerUser = asyncHandler(async (req,res) =>{
             fullname,
             password,
             email,
-            avatar:avatar.url,
-            coverImage :coverImage?.url || "",
+            avatar:{
+              url:avatar.url,
+              public_id:avatar.public_id
+            },
+            coverImage :{
+              url:coverImage?.url || "",
+              public_id:coverImage?.public_id | ""
+            },
         })
          const createduser = await User.findById(user._id).select("-password -refreshToken")
 
@@ -244,26 +250,35 @@ const registerUser = asyncHandler(async (req,res) =>{
    if(!avatarlocalpath){
     throw new ApiError(401,"avatar must required")
    }
-
+ const user = await User.findById(req.user._id).select("avatar")
    const avatar = await uploadoncloudinary(avatarlocalpath)
 
      if (!avatar?.url) {
     throw new ApiError(500, "Error uploading avatar");
   }
+    const deleteavatar = user?.avatar?.public_id
 
-    const  user = await  User.findByIdAndUpdate(
+    const  updateuser = await  User.findByIdAndUpdate(
     req.user?._id,
     { $set :{
-      avatar : avatar.url
+      avatar : {
+        url:avatar.url,
+        public_id:avatar.public_id
+      }
     }},
     {new :true}
    ).select("-password")
-
+  if(!updateuser){
+    throw new ApiError(400,"something went wrong when update avatar")
+  }
+  if(updateuser){
+    await deleteFromCloudinary(deleteavatar)
+  }
    return res
    .status(200)
    .json(new ApiResponse(
     200,
-    user,
+    updateuser,
     "avatar upadated successfully"
    ))
  })
@@ -278,20 +293,32 @@ const registerUser = asyncHandler(async (req,res) =>{
      if (!coverImage?.url) {
     throw new ApiError(500, "Error uploading avatar");
   }
+   const user = await  User.findById(req.user._id).select("coverImage")
 
-    const  user =  await User.findByIdAndUpdate(
+    const oldcoverImage = user?.coverImage?.public_id
+
+    const  updateuser =  await User.findByIdAndUpdate(
     req.user?._id,
     { $set :{
-      coverImage : coverImage.url
+      coverImage : {
+        url:coverImage.url,
+        public_id:coverImage.public_id
+      }
     }},
     {new :true}
    ).select("-password")
    
+   if(!updateuser){
+    throw  new ApiError(400,"somthing went wrong when upadate coverImage")
+   }
+   if(oldcoverImage){
+     await deleteFromCloudinary(oldcoverImage)
+   }
    return res
    .status(200)
    .json(new ApiResponse(
     200,
-    user,
+    updateuser,
     "coverImage upadated successfully"
    ))
   })

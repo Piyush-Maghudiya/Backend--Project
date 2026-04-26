@@ -18,7 +18,11 @@ cloudinary.config({
         // file uploaded successfully
         console.log("file upload successfully:" ,response.url);
          fs.unlinkSync(localfilepath);
-        return  response
+        // return  response modify like
+        return {
+          url:response.url,
+          public_id:response.public_id
+        }
 
       }catch(error){
         // remove file from local temprory storage
@@ -26,4 +30,32 @@ cloudinary.config({
         return null
       }
    }
-   export default uploadoncloudinary
+
+
+const deleteFromCloudinary = async (publicId) => {
+  try {
+    if (!publicId) {
+      console.log("No public_id provided");
+      return null;
+    }
+
+    const result = await cloudinary.uploader.destroy(publicId);
+
+    if (result.result === "ok") {
+      console.log("File deleted successfully:", publicId);
+      return result;
+    } else if (result.result === "not found") {
+      console.log("File not found on Cloudinary:", publicId);
+      return null;
+    } else {
+      console.log("Unexpected response:", result);
+      return null;
+    }
+
+  } catch (error) {
+    console.error("Error deleting from Cloudinary:", error);
+    return null;
+  }
+};
+
+export {deleteFromCloudinary,uploadoncloudinary} ;

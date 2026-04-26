@@ -16,11 +16,11 @@ app.use(express.json({limit:"16kb"}))
  
 // import routes
 import userRouter from "./routes/user.routes.js" 
-
+import commentRouter from "./routes/comment.routes.js"
 
 // route decalre
 app.use("/api/v1/users",userRouter)
-
+app.use("/api/v1/comment",commentRouter)
 
 
 export default app
