@@ -1,7 +1,7 @@
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import ApiError from "../utils/ApiError.js";
-import { Video } from "../models/vidio.models";
+import { Video } from "../models/video.models.js";
 import User from "../models/user.models";
 import {uploadoncloudinary,deleteFromCloudinary} from"../utils/cloudinary.js"
 import mongoose,{isValidObjectId} from "mongoose";
