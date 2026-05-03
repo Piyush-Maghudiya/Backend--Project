@@ -5,7 +5,7 @@ import verifyjwt from "../middleware/auth.middleware.js";
 
 const router = Router()
 
-router.use(verifyJWT, upload.none()); // Apply verifyJWT middleware to all routes in this file
+router.use(verifyjwt, upload.none()); // Apply verifyJWT middleware to all routes in this file
 router.route("/:vedioid").get(getVideoComment);
 router.route("/:vedioid").post(addcomment);
 router.route("/:commentid").patch(updatecomment);

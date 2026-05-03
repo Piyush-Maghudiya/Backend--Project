@@ -2,7 +2,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import ApiError from "../utils/ApiError.js";
 import { Video } from "../models/video.models.js";
-import User from "../models/user.models";
+import User from "../models/user.models.js";
 import {uploadoncloudinary,deleteFromCloudinary} from"../utils/cloudinary.js"
 import mongoose,{isValidObjectId} from "mongoose";
 // get all video
@@ -272,7 +272,7 @@ const updatevideo = asyncHandler(async(req,res)=>{
     // delete  from cloudnairy
     const thumbnaildelete = video.thumbnail.public_id
     
-    const thumbnailloaclpath = req.files?.[0]?.path,
+    const thumbnailloaclpath = req.files?.[0]?.path;
     if(!thumbnailloaclpath){
          throw new ApiError(400,"thumbnail is required")
     }
@@ -310,7 +310,8 @@ const deletevideo = asyncHandler(async (req,res)=>{
    if(!isValidObjectId(videoId)){
     throw new ApiError(400,"vedioid is not valid ")
    }
-   const video =  await Video.findById(videoId),
+   const video =  await Video.findById(videoId)
+
     if(!video){
         throw new ApiError(404,"video not found")
     }

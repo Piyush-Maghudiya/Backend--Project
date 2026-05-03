@@ -7,7 +7,7 @@ import{createPlaylist,
     getPlaylistById,
     getUserPlaylists
 } from "../controllers/playlist.controller.js";
-import {verifyjwt} from "../middleware/auth.middleware.js";
+import verifyjwt from "../middleware/auth.middleware.js";
 
 const router = Router();
 

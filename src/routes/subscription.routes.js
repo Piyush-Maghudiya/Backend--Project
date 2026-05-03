@@ -4,7 +4,7 @@ import {toggleSubcription,
     getsubscribedChannel
 } from "../controllers/subscription.controller.js"
 
-import {verifyjwt}  from "../middleware/auth.middleware.js"
+import verifyjwt  from "../middleware/auth.middleware.js"
 
 const router = Router()
 router.use(verifyjwt);

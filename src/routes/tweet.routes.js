@@ -13,6 +13,6 @@ router.route("/").post(createtweet)
  router.route("/:tweetId").patch(updatetweet)
                          .delete(deletetweet);
                          
- router,route("/user/:userId").get(getalltweet);
+ router.route("/user/:userId").get(getalltweet);
                         
 export default router

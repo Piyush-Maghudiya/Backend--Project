@@ -11,5 +11,5 @@ const tweetSchema = mongoose.Schema({
     }, 
     
 },{timestamps:true})
-playlistSchema.plugin(mongooseAggregatePaginate)
+tweetSchema.plugin(mongooseAggregatePaginate)
 export const Tweet = mongoose.model("Tweet",tweetSchema)
