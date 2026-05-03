@@ -12,8 +12,11 @@ import mongoose,{isValidObjectId} from "mongoose";
 // delete video 
 
 const getallvideo = asyncHandler(async (req,res) => {
-       const {page=1,limit=10,query,sortBy, sortType}= req.query;
-       const {userId} =req.params;
+       const {page=1,limit=10,query,sortBy, sortType, userId}= req.query;
+       
+       if(!userId || !isValidObjectId(userId)){
+        throw new ApiError(400,"valid userId is required")
+       }
        const user = await User.findById(userId)
        if(!user){
         throw new ApiError(400,"user not found")
@@ -57,7 +60,7 @@ const getallvideo = asyncHandler(async (req,res) => {
 //  i  after add this
    pipeline.push({
     $lookup:{
-        from:"user",
+        from:"users",
         localField:"owner",
         foreignField:"_id",
         as:"ownerdetail",
@@ -88,11 +91,9 @@ const getallvideo = asyncHandler(async (req,res) => {
 })
 const publishvideo  = asyncHandler(async (req,res) =>{
     const{title,description,duration} = req.body
-    const {userId} = req.params
-    const user = await User.findById(userId)
-    if(!user){
-        throw new ApiError(404,"user not found")
-    }
+
+    // Use the logged-in user from auth middleware (req.user) instead of req.params
+    const userId = req.user._id;
 
     const videofilepath = req.files?.videoFile?.[0]?.path;
     const thumbnailfilepath = req.files?.thumbnail?.[0]?.path;
@@ -115,12 +116,8 @@ const publishvideo  = asyncHandler(async (req,res) =>{
     throw new ApiError(500,"somthing went wrong while uploading thumbnail on cloudnairy")
     }
     const uploadvideo = await Video.create({
-        videoFile:{url :videouploadonclodnairy,
-            public_id:videouploadonclodnairy.public_id
-        },
-        thumbnail:{url:thumbnailuploadonclodnairy,
-            public_id:thumbnailuploadonclodnairy.public_id
-        },
+        videoFile: videouploadonclodnairy.url,
+        thumbnail: thumbnailuploadonclodnairy.url,
         title:title,
         description:description,
         duration:duration,
@@ -145,7 +142,7 @@ const getvideoByid = asyncHandler(async (req,res) =>{
     if(!video){
         throw new ApiError(400,"video not found")
     }
-   const videoaggrigate  = Video.aggregate([
+   const videoaggrigate  = await  Video.aggregate([
        {
         $match:{
                 _id:new mongoose.Types.ObjectId(videoId)
@@ -173,6 +170,8 @@ const getvideoByid = asyncHandler(async (req,res) =>{
               foreignField:"channel",
               as:"subscribers"
             },
+        },
+        {
            $addFields:{
             subscribercount:{
                  $size:"$subscribers"
@@ -185,6 +184,8 @@ const getvideoByid = asyncHandler(async (req,res) =>{
            }
             }
            },
+        },
+        {
            $project:{
              subscribercount:1,
              issubscribed:1,
@@ -216,7 +217,7 @@ const getvideoByid = asyncHandler(async (req,res) =>{
        },
        {
         $project:{
-        "videoFile.url":1,
+        videoFile:1,
           title:1,
           description:1,
           duration:1,
@@ -269,41 +270,31 @@ const updatevideo = asyncHandler(async(req,res)=>{
    if(!title || !description){
     throw new ApiError(400,"title and description are required")
    }
-    // delete  from cloudnairy
-    const thumbnaildelete = video.thumbnail.public_id
-    
-    const thumbnailloaclpath = req.files?.[0]?.path;
+    const thumbnailloaclpath = req.file?.path;
     if(!thumbnailloaclpath){
          throw new ApiError(400,"thumbnail is required")
     }
    
    const thumbnailplpath = await uploadoncloudinary(thumbnailloaclpath);
      if(!thumbnailplpath){
-        throw new ApiError(500,"thumbnail is not found")
+        throw new ApiError(500,"thumbnail upload failed")
      }
-   const updatevideo = await Video.findByIdAndUpdate(videoId,
+   const updatedvideo = await Video.findByIdAndUpdate(videoId,
     {
        $set:{
-        thumbnail:{
-            url:thumbnailplpath.url,
-            public_id:thumbnailplpath.public_id
-        },
+        thumbnail: thumbnailplpath.url,
         title:title,
         description:description,
        }
-       
     },
     {new :true}
    )
-   if(!updatevideo){
+   if(!updatedvideo){
     throw new ApiError(400,"Failed to update video please try  again")
-   }
-   if(updatevideo){
-    await deleteFromCloudinary(thumbnaildelete)
    }
     return res
     .status(200)
-    .json(new ApiResponse(200,"video updated successfull"))
+    .json(new ApiResponse(200,updatedvideo,"video updated successfull"))
 })
 const deletevideo = asyncHandler(async (req,res)=>{
    const { videoId } = req.params;
@@ -324,8 +315,8 @@ const deletevideo = asyncHandler(async (req,res)=>{
     throw  new ApiError(500,"something went wrong when deleting video")
    }
    
-  await deleteFromCloudinary(video?.thumbnail?.public_id) 
-  await deleteFromCloudinary(video.videoFile.public_id) 
+  // Note: cloudinary cleanup skipped — videoFile and thumbnail are stored as plain URL strings
+  // To enable cleanup, store public_id separately in the video model
 
   return res
   .status(200)

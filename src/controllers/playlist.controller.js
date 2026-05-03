@@ -51,23 +51,22 @@ const  updatePlaylist = asyncHandler(async (req,res)=>{
     throw new ApiErorr(400,"only  owner update the playlist")
   }
 
-  const updateplaylist = await Playlist.findByIdAndUpdate(req.user._id,{
+  const updateplaylist = await Playlist.findByIdAndUpdate(playlistId,{
        $set:{
         name:name,
         description:description,
-        owner:req.user._id,
        }
   },{
     new :true,
   })
 
-  if(!updatePlaylist){
+  if(!updateplaylist){
     throw new ApiErorr(500,"something went wrong , while update playlist")
   }
 
   return res
   .status(200)
-  .json(new ApiResponse(200,updatePlaylist,"playlist update successfully"))
+  .json(new ApiResponse(200,updateplaylist,"playlist update successfully"))
 })
 
 const deletePlaylist = asyncHandler(async (req, res) => {

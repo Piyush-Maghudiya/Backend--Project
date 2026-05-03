@@ -74,7 +74,7 @@ const registerUser = asyncHandler(async (req,res) =>{
             },
             coverImage :{
               url:coverImage?.url || "",
-              public_id:coverImage?.public_id | ""
+              public_id:coverImage?.public_id || ""
             },
         })
          const createduser = await User.findById(user._id).select("-password -refreshToken")
@@ -174,7 +174,7 @@ const registerUser = asyncHandler(async (req,res) =>{
         throw new ApiError(401,"refreshtoken is expired or used")
       }
 
-      const{accessToken,newrefreshToken} =  await generateAccesstokenAndRefreshtoken(user._id)
+      const{accessToken, refreshToken: newrefreshToken} =  await generateAccesstokenAndRefreshtoken(user._id)
 
       const options = {
         httpOnly:true,
@@ -222,7 +222,7 @@ const registerUser = asyncHandler(async (req,res) =>{
  const getcurrentuser = asyncHandler(async (req,res)=>{
   return res
   .status(200)
-  .json(200,req.user,"current user fetch successfully")
+  .json(new ApiResponse(200,req.user,"current user fetch successfully"))
  })
 
  const updateAccount = asyncHandler(async (req,res)=>{
@@ -232,7 +232,7 @@ const registerUser = asyncHandler(async (req,res) =>{
         throw new ApiError(401,"fulllname and userrname must be required")
       }
       
-     const user =   User.findByIdAndUpdate(
+     const user = await User.findByIdAndUpdate(
         req.user?._id,
         { $set:{
           fullname:fullname,

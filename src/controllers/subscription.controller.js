@@ -109,7 +109,7 @@ const getsubscribedChannel = asyncHandler(async(req,res)=>{
     const subsccribedTo = await Subscription.aggregate([
       {
        $match:{
-         subscriber:new mongoose.Types.ObjectId(channelId)
+         subscriber:new mongoose.Types.ObjectId(subscriberId)
        }
       },
       {

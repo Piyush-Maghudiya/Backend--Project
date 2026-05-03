@@ -8,7 +8,7 @@ import verifyjwt  from "../middleware/auth.middleware.js"
 
 const router = Router()
 router.use(verifyjwt);
-router.route("./c/:channelId").post(toggleSubcription)
+router.route("/c/:channelId").post(toggleSubcription)
                             .get(getuserchhannelSubscriber);
-router.route("./u/:subscriberId").get(getsubscribedChannel)
+router.route("/u/:subscriberId").get(getsubscribedChannel)
 export  default router
