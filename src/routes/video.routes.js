@@ -22,7 +22,7 @@ router.use(verifyjwt)
             publishvideo
 )
 
-router.route("/v/:videoId").get(getvideoByid)
+router.route("/:videoId").get(getvideoByid)
                            .delete(deletevideo)
                            .patch(upload.single("thumbnail"),updatevideo)
 router.route("/toggle/publish/:videoId").patch(togglepublishstatus)

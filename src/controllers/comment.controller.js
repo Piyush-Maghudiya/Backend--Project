@@ -91,7 +91,7 @@ const getVideoComment = asyncHandler(async (req,res)=>{
 
 const addcomment = asyncHandler(async (req,res) =>{
       const{videoid} = req.params
-      const {content} =  req.body
+      const {content} =  req.body || {}
       const video =  await Video.findById(videoid)
       if(!video){
         throw new ApiError(400,"video not found")

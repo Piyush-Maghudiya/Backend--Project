@@ -7,7 +7,7 @@ const router = Router()
 
 router.use(verifyjwt, upload.none()); // Apply verifyJWT middleware to all routes in this file
 router.route("/:vedioid").get(getVideoComment);
-router.route("/:vedioid").post(addcomment);
+router.route("/:videoid").post(addcomment);
 router.route("/:commentid").patch(updatecomment);
 router.route("/:commentid").delete(deletecomment);
 
