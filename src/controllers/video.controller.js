@@ -14,9 +14,9 @@ import mongoose,{isValidObjectId} from "mongoose";
 const getallvideo = asyncHandler(async (req,res) => {
        const {page=1,limit=10,query,sortBy, sortType, userId}= req.query;
        
-       if(!userId || !isValidObjectId(userId)){
-        throw new ApiError(400,"valid userId is required")
-       }
+    //    if(!userId || !isValidObjectId(userId)){
+    //     throw new ApiError(400,"valid userId is required")
+    //    }
        const user = await User.findById(userId)
        if(!user){
         throw new ApiError(400,"user not found")
@@ -82,6 +82,9 @@ const getallvideo = asyncHandler(async (req,res) => {
         allvideo,
         options
     );
+
+    console.log(video);
+
     return res
     .status(200)
     .json(
